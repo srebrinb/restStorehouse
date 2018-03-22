@@ -1,5 +1,6 @@
 package srebrinb.nosql.webstore;
 
+import srebrinb.nosql.webstore.kv.blob.NoSQLstore;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -41,15 +42,11 @@ public class WebSrvVerticle extends AbstractVerticle {
         startWebApp((http) -> completeStartup(http, fut));
 
     }
-
-    private void createSomeData(Handler<AsyncResult<Void>> next, Future<Void> fut) {
-        
-        next.handle(Future.<Void>succeededFuture());
-
-        // report the error
-        //  fut.fail(count.cause());
+    @Override
+    public void stop(){
+        store.close();
     }
-
+    
     private void completeStartup(AsyncResult<HttpServer> http, Future<Void> fut) {
         if (http.succeeded()) {
             fut.complete();

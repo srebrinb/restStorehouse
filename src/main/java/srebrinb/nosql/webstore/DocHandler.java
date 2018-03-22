@@ -5,6 +5,7 @@
  */
 package srebrinb.nosql.webstore;
 
+import srebrinb.nosql.webstore.kv.blob.NoSQLstore;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
 import io.vertx.ext.web.RoutingContext;

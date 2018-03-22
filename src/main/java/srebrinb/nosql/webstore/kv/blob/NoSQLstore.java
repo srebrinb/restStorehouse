@@ -1,5 +1,4 @@
-package srebrinb.nosql.webstore;
-
+package srebrinb.nosql.webstore.kv.blob;
 
 import java.io.File;
 import java.security.MessageDigest;
@@ -15,6 +14,7 @@ import oracle.kv.Key;
 import oracle.kv.KeyValueVersion;
 import oracle.kv.Value;
 import oracle.kv.ValueVersion;
+import org.apache.commons.codec.binary.Base32;
 
 /**
  *
@@ -22,19 +22,29 @@ import oracle.kv.ValueVersion;
  */
 public class NoSQLstore {
 
-    private final KVStore store;
+    private static KVStore store=null;
 
     public NoSQLstore() {
- //java -Xmx256m -Xms256m -jar lib\kvstore.jar kvlite -root KVROOT -secure-config disable       
+        //java -Xmx256m -Xms256m -jar lib\kvstore.jar kvlite -root KVROOT -secure-config disable       
         String storeName = "kvstore";
         String hostName = "127.0.0.1";
         String hostPort = "5000";
         store = KVStoreFactory.getStore(new KVStoreConfig(storeName, hostName + ":" + hostPort));
-//        store = KVStoreFactory.getStore(new KVStoreConfig("kvstore", "localhost:5000"));
-        System.out.println("connced to " + hostName + ":" + hostPort);
+
     }
 
-    public KVStore getKVStore() {
+    public void close() {
+        store.close();
+    }
+
+    /**
+     *
+     * @return
+     */
+    public static KVStore getStore() {
+        if (store==null){
+            new NoSQLstore();
+        }
         return store;
     }
 
@@ -111,31 +121,33 @@ public class NoSQLstore {
             }
         }
         long time = System.currentTimeMillis();
-        String keyString = Long.toString(time);
+        dig = Long.toString(time).getBytes();
         if (sha != null) {
             sha.update(valueCont);
             dig = sha.digest();
-            keyString = bytArrayToHex(dig);
+
         }
+        Base32 base32 = new Base32();
+        String keyString = base32.encodeToString(dig).replace('=', ' ').trim();
+
         ArrayList<String> majorComponents = new ArrayList<String>();
         ArrayList<String> minorComponents = new ArrayList<String>();
-        majorComponents.add("files");
+        majorComponents.add("blob");
         minorComponents.add(keyString);
         Key key = Key.createKey(majorComponents, minorComponents);
-        System.out.println(key);
-        store.put(key,
-                Value.createValue(valueCont));
+        store.put(key,Value.createValue(valueCont));
         return keyString;
     }
-
     public byte[] get(String keyString) {
+        return get("blob", keyString);
+    }
+    public byte[] get(String type,String keyString) {
         try {
             ArrayList<String> majorComponents = new ArrayList<String>();
             ArrayList<String> minorComponents = new ArrayList<String>();
-            majorComponents.add("files");
+            majorComponents.add(type);
             minorComponents.add(keyString);
             Key key = Key.createKey(majorComponents, minorComponents);
-            System.out.println(key);
             final ValueVersion valueVersion = store.get(key);
             return valueVersion.getValue().getValue();
         } catch (Exception e) {
@@ -143,11 +155,11 @@ public class NoSQLstore {
         }
     }
 
-    public List list() {
+    public List list(String type) {
         List files = new ArrayList();
         ArrayList<String> majorComponents = new ArrayList<String>();
         ArrayList<String> minorComponents = new ArrayList<String>();
-        majorComponents.add("files");
+        majorComponents.add(type);
         Key kay = Key.createKey(majorComponents);
         Iterator<KeyValueVersion> i
                 = store.multiGetIterator(Direction.FORWARD, 0,
@@ -162,7 +174,6 @@ public class NoSQLstore {
             files.add(fileName);
             icount++;
         }
-        System.out.println(icount);
         return files;
     }
 
@@ -209,4 +220,5 @@ public class NoSQLstore {
             // Do some work with the Value here
         }
     }
+
 }
