@@ -1,2 +1,2 @@
 # restStorehouse
-Restful base documents storage,repository, storehouse
+Restful base documents storage,repository or storehouse
