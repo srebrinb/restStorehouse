@@ -5,9 +5,10 @@
  */
 package srebrinb.nosql.webstore;
 
-import srebrinb.nosql.webstore.kv.blob.NoSQLstore;
+import srebrinb.nosql.webstore.kv.NoSQLstore;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.StaticHandler;
@@ -27,8 +28,13 @@ public class DocHandler {
 //            .setStatusCode(201)
 //            .putHeader("content-type", "application/json; charset=utf-8")
 //            .end(Json.encodePrettily(whisky.setId(r.result()))));
+       Buffer body = routingContext.getBody();
+       
        String contentType = routingContext.getAcceptableContentType();
        System.out.println("contentType = " + contentType);
+       routingContext.response()
+              .setStatusCode(200)
+              .end("{\"ok\":true}");;
   }
 
    void getOne(RoutingContext routingContext) {
@@ -52,6 +58,10 @@ public class DocHandler {
 //        }
 //      });
 //    }
+      routingContext.response()
+              .setStatusCode(200)
+              .putHeader("content-type", "application/json; charset=utf-8")
+              .end("{\"ok\":true}");
   }
 
   void updateOne(RoutingContext routingContext) {

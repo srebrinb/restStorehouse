@@ -1,6 +1,6 @@
 package srebrinb.nosql.webstore;
 
-import srebrinb.nosql.webstore.kv.blob.NoSQLstore;
+import srebrinb.nosql.webstore.kv.NoSQLstore;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -69,13 +69,16 @@ public class WebSrvVerticle extends AbstractVerticle {
 
         router.route("/assets/*").handler(StaticHandler.create("assets"));
         DocHandler docHandler = new DocHandler(store);
-
-        router.route("/api/docs/*").handler(BodyHandler.create());
+        BodyHandler bodyHandler=BodyHandler.create();
+        String uploadsDirectory="/tmp/upload";
+        bodyHandler.setUploadsDirectory(uploadsDirectory);
+        router.route("/api/docs/*").handler(bodyHandler);
+        
         router.get("/api/docs").handler(docHandler::getAll);
         router.post("/api/docs").handler(docHandler::addOne);
-        router.get("/api/docs/:id").handler(docHandler::getOne);
-        router.put("/api/docs/:id").handler(docHandler::updateOne);
-        router.delete("/api/docs/:id").handler(docHandler::deleteOne);
+        router.get("/api/doc/:id").handler(docHandler::getOne);
+        router.put("/api/doc/:id").handler(docHandler::updateOne);
+        router.delete("/api/doc/:id").handler(docHandler::deleteOne);
 
         // Create the HTTP server and pass the "accept" method to the request handler.
         vertx

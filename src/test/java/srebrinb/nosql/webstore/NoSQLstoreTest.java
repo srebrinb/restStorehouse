@@ -5,7 +5,7 @@
  */
 package srebrinb.nosql.webstore;
 
-import srebrinb.nosql.webstore.kv.blob.NoSQLstore;
+import srebrinb.nosql.webstore.kv.NoSQLstore;
 import java.util.List;
 import oracle.kv.KVStore;
 import org.junit.After;
