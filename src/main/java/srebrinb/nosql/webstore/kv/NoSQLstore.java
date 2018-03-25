@@ -55,7 +55,7 @@ public class NoSQLstore {
     public void put(String keyString, byte[] valueCont, int lifeTimeMin) {
         ArrayList<String> majorComponentsO = new ArrayList<String>();
         ArrayList<String> minorComponentsO = new ArrayList<String>();
-        majorComponentsO.add("files");
+        majorComponentsO.add("blob");
         minorComponentsO.add(keyString);
         Key key = Key.createKey(majorComponentsO, minorComponentsO);
         store.put(key,
@@ -85,20 +85,19 @@ public class NoSQLstore {
     public String getMeta(String keyString, String keyMetadata) {
         ArrayList<String> majorComponents = new ArrayList<String>();
         ArrayList<String> minorComponents = new ArrayList<String>();
-        majorComponents.add("files");
         majorComponents.add("metadata");
         minorComponents.add(keyString);
         minorComponents.add(keyMetadata);
         Key key = Key.createKey(majorComponents, minorComponents);
 
         final ValueVersion valueVersion = store.get(key);
+        if (valueVersion == null) return "";
         return new String(valueVersion.getValue().getValue());
     }
 
     public void putMeta(String keyString, String keyMetadata, String valMetadata) {
         ArrayList<String> majorComponents = new ArrayList<String>();
         ArrayList<String> minorComponents = new ArrayList<String>();
-        majorComponents.add("files");
         majorComponents.add("metadata");
         minorComponents.add(keyString);
         minorComponents.add(keyMetadata);
@@ -112,10 +111,10 @@ public class NoSQLstore {
         byte[] dig = null;
         MessageDigest sha = null;
         try {
-            sha = MessageDigest.getInstance("SHA-256");
+            sha = MessageDigest.getInstance("SHA-512");
         } catch (NoSuchAlgorithmException ex) {
             try {
-                sha = MessageDigest.getInstance("SHA-1");
+                sha = MessageDigest.getInstance("SHA-256");
             } catch (NoSuchAlgorithmException ex1) {
                 ex1.printStackTrace();
             }
@@ -135,6 +134,7 @@ public class NoSQLstore {
         majorComponents.add("blob");
         minorComponents.add(keyString);
         Key key = Key.createKey(majorComponents, minorComponents);
+        
         store.put(key,Value.createValue(valueCont));
         return keyString;
     }

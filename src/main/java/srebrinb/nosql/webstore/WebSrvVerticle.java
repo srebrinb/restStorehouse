@@ -73,7 +73,6 @@ public class WebSrvVerticle extends AbstractVerticle {
         String uploadsDirectory="/tmp/upload";
         bodyHandler.setUploadsDirectory(uploadsDirectory);
         router.route("/api/docs/*").handler(bodyHandler);
-        
         router.get("/api/docs").handler(docHandler::getAll);
         router.post("/api/docs").handler(docHandler::addOne);
         router.get("/api/doc/:id").handler(docHandler::getOne);

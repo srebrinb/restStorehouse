@@ -38,7 +38,7 @@ public class NoSQLstoreTest {
 
     @After
     public void tearDown() {
-        
+
     }
 
     /**
@@ -56,11 +56,30 @@ public class NoSQLstoreTest {
      * Test of put method, of class NoSQLstore.
      */
     @Test
+    public void testPut() {
+        System.out.println("put");
+        byte[] valueCont = new String("{\"ok\":true}").getBytes();
+        NoSQLstore instance = new NoSQLstore();
+
+        instance.put("1", valueCont);
+    }
+
+    @Test
+    public void testGetId() {
+        testPut();
+        System.out.println("get");
+        byte[] valueCont = new String("{\"ok\":true}").getBytes();
+        NoSQLstore instance = new NoSQLstore();
+        byte[] res = instance.get("1");
+        System.out.println("res = " + new String(res));
+    }
+
+    @Test
     public void testPut_byteArr() {
         System.out.println("put");
         byte[] valueCont = new String("Test").getBytes();
         NoSQLstore instance = new NoSQLstore();
-        String expResult = "KMXKVPMVOSEA3P3WXG4MYAEDFQQKN3ARHVUCFGKVBV5G4DZULYSQ";
+        String expResult = "Y3XJ4M6PLRTRLIORJD6XH5ZRRCCLIGW4XELAEHRLYDUABJOF3WL7KFBBPD3K5CGI7XMY4GX3BTSMRUWFJNPTPMYLPWQZS65THMFYUMI";
         String result = instance.put(valueCont);
         assertEquals(expResult, result);
     }
@@ -69,7 +88,7 @@ public class NoSQLstoreTest {
     public void testPut_get() {
         testPut_byteArr();
         System.out.println("get");
-        String key = "KMXKVPMVOSEA3P3WXG4MYAEDFQQKN3ARHVUCFGKVBV5G4DZULYSQ";
+        String key = "Y3XJ4M6PLRTRLIORJD6XH5ZRRCCLIGW4XELAEHRLYDUABJOF3WL7KFBBPD3K5CGI7XMY4GX3BTSMRUWFJNPTPMYLPWQZS65THMFYUMI";
         NoSQLstore instance = new NoSQLstore();
         String expResult = "Test";
         String result = new String(instance.get(key));
