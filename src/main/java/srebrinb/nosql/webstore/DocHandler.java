@@ -10,7 +10,10 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.core.buffer.Buffer;
+<<<<<<< HEAD
 import io.vertx.core.json.Json;
+=======
+>>>>>>> bbf20f72bbff682d847b0c8d6aeceadfc94b20fc
 import io.vertx.ext.web.FileUpload;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
@@ -18,6 +21,7 @@ import io.vertx.ext.web.handler.StaticHandler;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+<<<<<<< HEAD
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -70,10 +74,47 @@ public class DocHandler {
             jsonRest = Json.encodePrettily(listContents);
         } else {
             Buffer body = routingContext.getBody();
+=======
+import java.util.Map;
+import java.util.Set;
+import org.apache.commons.io.IOUtils;
+
+public class DocHandler {
+
+    private final NoSQLstore store;
+
+    DocHandler(NoSQLstore store) {
+        this.store = store;
+    }
+    //post("/api/docs")
+
+    void addOne(RoutingContext routingContext) throws FileNotFoundException, IOException {
+//    final Whisky whisky = Json.decodeValue(routingContext.getBodyAsString(),
+//        Whisky.class);
+//
+//    mongo.insert(COLLECTION, whisky.toJson(), r ->
+//        routingContext.response()
+//            .setStatusCode(201)
+//            .putHeader("content-type", "application/json; charset=utf-8")
+//            .end(Json.encodePrettily(whisky.setId(r.result()))));
+
+        if (routingContext.request().getHeader("Content-Type").startsWith("multipart")) {
+            Set<FileUpload> uploads = routingContext.fileUploads();
+            for (FileUpload upload : uploads) {
+                // System.out.println("upload = " + upload.fileName());
+                String key = store.put(IOUtils.toByteArray(new FileInputStream(upload.uploadedFileName())));
+                store.putMeta(key, "Content-Type", upload.contentType());
+                store.putMeta(key, "FileName", upload.fileName());
+            }
+        } else {
+            Buffer body = routingContext.getBody();
+
+>>>>>>> bbf20f72bbff682d847b0c8d6aeceadfc94b20fc
             String contentType = routingContext.request().getHeader("Content-Type");
             System.out.println("contentType = " + contentType);
             String key = store.put(routingContext.getBodyAsString().getBytes());
             store.putMeta(key, "Content-Type", contentType);
+<<<<<<< HEAD
             HashMap restContent = new HashMap();
             restContent.put("Key", key);
             jsonRest = Json.encodePrettily(restContent);
@@ -85,6 +126,15 @@ public class DocHandler {
 
     void getOne(RoutingContext routingContext) {
         String contentType;
+=======
+        }
+        routingContext.response()
+                .setStatusCode(200)
+                .end("{\"ok\":true}");;
+    }
+
+    void getOne(RoutingContext routingContext) {
+>>>>>>> bbf20f72bbff682d847b0c8d6aeceadfc94b20fc
         byte[] res = null;
         final String id = routingContext.request().getParam("id");
         if (id == null) {
@@ -107,7 +157,10 @@ public class DocHandler {
 //        }
 //      });
             res = store.get(id);
+<<<<<<< HEAD
             contentType=store.getMeta(id, "Content-Type");
+=======
+>>>>>>> bbf20f72bbff682d847b0c8d6aeceadfc94b20fc
         }
         if (res == null) {
             routingContext.response().setStatusCode(404).end();
@@ -115,7 +168,11 @@ public class DocHandler {
         }
         routingContext.response()
                 .setStatusCode(200)
+<<<<<<< HEAD
                 .putHeader("content-type", contentType)
+=======
+                .putHeader("content-type", "application/json; charset=utf-8")
+>>>>>>> bbf20f72bbff682d847b0c8d6aeceadfc94b20fc
                 .end(new String(res));
     }
 
