@@ -7,13 +7,13 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static io.restassured.RestAssured.*;
+import io.restassured.response.Response;
 import java.io.File;
 import static org.hamcrest.Matchers.is;
 
 /**
  *
- * @author sbalabanov
- * https://github.com/rest-assured/rest-assured/wiki/Usage
+ * @author sbalabanov https://github.com/rest-assured/rest-assured/wiki/Usage
  */
 public class WebSrvVerticleTest {
 
@@ -47,16 +47,27 @@ public class WebSrvVerticleTest {
     @Test
     public void testMain() {
 
-        get("/api/doc/1").then().body("ok", is(true));
+        Response res = get("/api/doc/1");
+        res.getBody().print();
+        res.then().body("ok", is(true));
+    }
+
+    @Test
+    public void testGet() {
+
+        Response response = get("/api/doc/1");
+        String str = response.getBody().prettyPrint();
+        System.out.println("str = " + str);
     }
 
     @Test
     public void testUpload() {
         given().
                 multiPart(new File("src/test/resources/demo.pdf")).
-        when().
+                when().
                 post("/api/docs").
-        then().
+                then().
                 statusCode(200);
     }
+
 }

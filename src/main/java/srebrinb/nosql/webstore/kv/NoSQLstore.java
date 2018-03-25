@@ -55,7 +55,7 @@ public class NoSQLstore {
     public void put(String keyString, byte[] valueCont, int lifeTimeMin) {
         ArrayList<String> majorComponentsO = new ArrayList<String>();
         ArrayList<String> minorComponentsO = new ArrayList<String>();
-        majorComponentsO.add("files");
+        majorComponentsO.add("blob");
         minorComponentsO.add(keyString);
         Key key = Key.createKey(majorComponentsO, minorComponentsO);
         store.put(key,
@@ -85,7 +85,6 @@ public class NoSQLstore {
     public String getMeta(String keyString, String keyMetadata) {
         ArrayList<String> majorComponents = new ArrayList<String>();
         ArrayList<String> minorComponents = new ArrayList<String>();
-        majorComponents.add("files");
         majorComponents.add("metadata");
         minorComponents.add(keyString);
         minorComponents.add(keyMetadata);
@@ -98,7 +97,6 @@ public class NoSQLstore {
     public void putMeta(String keyString, String keyMetadata, String valMetadata) {
         ArrayList<String> majorComponents = new ArrayList<String>();
         ArrayList<String> minorComponents = new ArrayList<String>();
-        majorComponents.add("files");
         majorComponents.add("metadata");
         minorComponents.add(keyString);
         minorComponents.add(keyMetadata);
