@@ -5,9 +5,14 @@
  */
 package srebrinb.nosql.webstore;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import srebrinb.nosql.webstore.kv.NoSQLstore;
 import java.util.List;
 import oracle.kv.KVStore;
+import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -94,5 +99,16 @@ public class NoSQLstoreTest {
         String result = new String(instance.get(key));
         assertEquals(expResult, result);
     }
-
+//
+    @Test
+    public void testPut_getImg() throws FileNotFoundException, IOException {
+        System.out.println("get Img");
+        String key = "GXFWRRUYA7OL6JR2QZ44L5XTUMRPTICXA57DG72V67S6JHZQQ6RYT65DTT6VGNW6RGVMNBHQLJ2GUJGH6U7YIH4NBBNNN3E4JHJ67AY";
+        NoSQLstore instance = new NoSQLstore();
+        String expResult = "Test";
+        String result = new String();
+        byte[] data = instance.get(key);
+        OutputStream output=new FileOutputStream("1.jpg");
+        IOUtils.writeChunked(data, output);
+    }
 }

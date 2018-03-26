@@ -67,11 +67,14 @@ public class WebSrvVerticle extends AbstractVerticle {
                     .end("<h1>Restful Store</h1>");
         });
 
-        router.route("/assets/*").handler(StaticHandler.create("assets"));
+  //      router.route("/assets/*").handler(StaticHandler.create("assets"));
+       router.route("/app/*").handler(StaticHandler.create("webroot").setCachingEnabled(false));
+
         DocHandler docHandler = new DocHandler(store);
         BodyHandler bodyHandler=BodyHandler.create();
         String uploadsDirectory="/tmp/upload";
         bodyHandler.setUploadsDirectory(uploadsDirectory);
+        bodyHandler.setDeleteUploadedFilesOnEnd(true);
         router.route("/api/docs/*").handler(bodyHandler);
         router.get("/api/docs").handler(docHandler::getAll);
         router.post("/api/docs").handler(docHandler::addOne);
