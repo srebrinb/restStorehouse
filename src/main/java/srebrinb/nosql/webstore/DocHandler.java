@@ -6,24 +6,17 @@
 package srebrinb.nosql.webstore;
 
 import srebrinb.nosql.webstore.kv.NoSQLstore;
-import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Handler;
-import io.vertx.core.MultiMap;
 import io.vertx.core.buffer.Buffer;
-import static io.vertx.core.buffer.Buffer.buffer;
+import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.Json;
 import io.vertx.ext.web.FileUpload;
 import io.vertx.ext.web.RoutingContext;
-import io.vertx.ext.web.handler.BodyHandler;
-import io.vertx.ext.web.handler.StaticHandler;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -50,7 +43,7 @@ public class DocHandler {
                     HashMap restContent = new HashMap();
                     // System.out.println("upload = " + upload.fileName());
                     FileInputStream os = new FileInputStream(upload.uploadedFileName());
-                    byte[] contents=IOUtils.toByteArray(os);
+                    byte[] contents = IOUtils.toByteArray(os);
                     os.close();
                     String key = store.put(contents);
                     store.putMeta(key, "Content-Type", upload.contentType());
@@ -99,18 +92,39 @@ public class DocHandler {
             return;
         } else {
             res = store.get(id);
-            contentType=store.getMeta(id, "Content-Type");
+            contentType = store.getMeta(id, "Content-Type");
         }
         if (res == null) {
             routingContext.response().setStatusCode(404).end();
             return;
         }
-        Buffer buffer=Buffer.buffer(res);
-        routingContext.response()
+
+        HttpServerResponse response = routingContext.response()
                 .setStatusCode(200)
                 .putHeader("content-type", contentType)
-                .putHeader("Content-Length", ""+res.length)
-                .write(buffer);
+                .putHeader("Content-Length", "" + res.length);
+
+        String acceptEncoding = routingContext.request().getHeader("Accept-Encoding");
+        List<String> transferEncodings = new ArrayList<String>();
+        if (acceptEncoding != null) {
+            acceptEncoding = acceptEncoding.toLowerCase();
+            if (acceptEncoding.matches("(.*)gzip(.*)")) {
+                transferEncodings.add("gzip");
+            }
+            if (acceptEncoding.matches("(.*)chunked(.*)")) {
+                transferEncodings.add("chunked");
+                response.setChunked(true);
+            }
+
+        }
+        String transferEncoding = String.join(",", transferEncodings);
+        Buffer buffer = Buffer.buffer(res);
+
+        if (transferEncoding != null) {
+            response.putHeader("Transfer-Encoding", transferEncoding);
+        }
+
+        response.write(buffer).close();
     }
 
     void updateOne(RoutingContext routingContext) {

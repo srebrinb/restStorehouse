@@ -7,6 +7,7 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
+import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
@@ -38,15 +39,16 @@ public class WebSrvVerticle extends AbstractVerticle {
     @Override
     public void start(Future<Void> fut) {
         store = new NoSQLstore();
-        
+
         startWebApp((http) -> completeStartup(http, fut));
 
     }
+
     @Override
-    public void stop(){
+    public void stop() {
         store.close();
     }
-    
+
     private void completeStartup(AsyncResult<HttpServer> http, Future<Void> fut) {
         if (http.succeeded()) {
             fut.complete();
@@ -67,12 +69,12 @@ public class WebSrvVerticle extends AbstractVerticle {
                     .end("<h1>Restful Store</h1>");
         });
 
-  //      router.route("/assets/*").handler(StaticHandler.create("assets"));
-       router.route("/app/*").handler(StaticHandler.create("webroot").setCachingEnabled(false));
+        //      router.route("/assets/*").handler(StaticHandler.create("assets"));
+        router.route("/app/*").handler(StaticHandler.create("webroot").setCachingEnabled(false));
 
         DocHandler docHandler = new DocHandler(store);
-        BodyHandler bodyHandler=BodyHandler.create();
-        String uploadsDirectory="/tmp/upload";
+        BodyHandler bodyHandler = BodyHandler.create();
+        String uploadsDirectory = "/tmp/upload";
         bodyHandler.setUploadsDirectory(uploadsDirectory);
         bodyHandler.setDeleteUploadedFilesOnEnd(true);
         router.route("/api/docs/*").handler(bodyHandler);
@@ -82,9 +84,12 @@ public class WebSrvVerticle extends AbstractVerticle {
         router.put("/api/doc/:id").handler(docHandler::updateOne);
         router.delete("/api/doc/:id").handler(docHandler::deleteOne);
 
+        HttpServerOptions serverOptions = new HttpServerOptions();
+        serverOptions.setCompressionSupported(true);
+        
         // Create the HTTP server and pass the "accept" method to the request handler.
         vertx
-                .createHttpServer()
+                .createHttpServer(serverOptions)
                 .requestHandler(router::accept)
                 .listen(
                         // Retrieve the port from the configuration,
